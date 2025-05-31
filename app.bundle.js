@@ -17,6 +17,11 @@ document.addEventListener("DOMContentLoaded",()=>{
 
   /* rarity rank */
   const rarityRank={}; ruleRows.slice().reverse().forEach((r,i)=>{rarityRank[r[1].split('/')[0].trim()]=i;});
+  /* 10% 以下の低確率アイテムを抽出 */
+const ultraRare = ruleRows
+  .filter(r => parseFloat(r[0]) <= 10)          // 10%以下
+  .map(r => r[1].replace(/\/.*/, "").trim());   // 表示名だけ
+
 
   /* storage */
   const load=()=>JSON.parse(localStorage.getItem("inv")||"[]");
@@ -88,7 +93,7 @@ let html = "<h2>抽選結果</h2>"
         resultBox.innerHTML=html;
         save(inv); renderInv();
 
-        if(gained.some(n=>rareList.includes(n))) rareFan();
+if (gained.some(n => ultraRare.includes(n))) rareFan();
       }catch(e){console.error(e);}
       finally{
         flash.classList.remove("show");

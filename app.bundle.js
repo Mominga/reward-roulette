@@ -88,34 +88,58 @@ function evaluate(d){
 }
 
 /* ========= ルーレット発動 ========= */
-rollBtn.onclick = ()=>{
-  rollBtn.disabled=true; animText.textContent="Rolling..."; diceBox.innerHTML="";
-  const cubes=[...Array(4)].map(()=>{const c=createDie();diceBox.appendChild(c);return c});
-  const tick=setInterval(()=>beep(520+Math.random()*280,60),90);
+rollBtn.onclick = () => {
+  rollBtn.disabled = true;
+  animText.textContent = "Rolling...";
+  diceBox.innerHTML = "";
 
-  setTimeout(()=>{
-    clearInterval(tick);
-    const vals=rollVals(); cubes.forEach((c,i)=>setFace(c,vals[i]));
-    [523,659,784].forEach((f,i)=>setTimeout(()=>beep(f,160),180*i));
-    confetti({particleCount:120,spread:90,origin:{y:.75}});
+  const cubes = [...Array(4)].map(() => {
+    const c = createDie();
+    diceBox.appendChild(c);
+    return c;
+  });
 
-    const got=evaluate(vals),inv=load(),map={};inv.forEach(n=>map[n]=(map[n]||0)+1);
-    let html="<h2>抽選結果</h2>";
-    got.forEach(n=>{
-      if((map[n]||0)>=MAX_HOLD){
-        html+=`<div class="card strike">${n}<div class="small">所持上限で獲得無し</div></div>`;
-      }else{
-        inv.push(n); map[n]=(map[n]||0)+1;
-        html+=`<div class="card">${n}</div>`;
-        if(rareList.includes(n)&&map[n]===1){
-          flashTxt.textContent=`New‼ ${n} を獲得しました！`;
-          flash.classList.add("show"); rareFan();
+  const tick = setInterval(() => beep(520 + Math.random() * 280, 60), 90);
+
+  setTimeout(() => {
+    try {
+      clearInterval(tick);
+      const vals = rollVals();
+      cubes.forEach((c, i) => setFace(c, vals[i]));
+      [523, 659, 784].forEach((f, i) => setTimeout(() => beep(f, 160), 180 * i));
+      confetti({ particleCount: 120, spread: 90, origin: { y: 0.75 } });
+
+      const got = evaluate(vals),
+        inv = load(),
+        map = {};
+      inv.forEach(n => (map[n] = (map[n] || 0) + 1));
+
+      let html = "<h2>抽選結果</h2>";
+      got.forEach(n => {
+        if ((map[n] || 0) >= MAX_HOLD) {
+          html += `<div class="card strike">${n}<div class="small">所持上限で獲得無し</div></div>`;
+        } else {
+          inv.push(n);
+          map[n] = (map[n] || 0) + 1;
+          html += `<div class="card">${n}</div>`;
+          if (rareList.includes(n) && map[n] === 1) {
+            flashTxt.textContent = `New‼ ${n} を獲得しました！`;
+            flash.classList.add("show");
+            rareFan();
+          }
         }
-      }
-    });
-    resultBox.innerHTML=html; save(inv); renderInv();
-    animText.textContent="結果！";
-    setTimeout(()=>flash.classList.remove("show"),2000);
-    rollBtn.disabled=false;
-  },1100);
+      });
+
+      resultBox.innerHTML = html;
+      save(inv);
+      renderInv();
+    } catch (e) {
+      console.error("抽選処理でエラー:", e);
+      alert("エラーが発生しました。コンソールをご確認ください。");
+    } finally {
+      animText.textContent = ""; // Rolling 表示を消す
+      flash.classList.remove("show"); // フラッシュが残る場合に備える
+      rollBtn.disabled = false;       // ★ 必ずボタンを再有効化
+    }
+  }, 1100);
 };

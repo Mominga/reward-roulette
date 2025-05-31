@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   rulesTable.innerHTML="<tr><th>条件</th><th>報酬</th></tr>"+ruleRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
 
   /* rarity rank */
-  const rarityRank={}; ruleRows.slice().reverse().forEach((r,i)=>{rarityRank[r[1].replace(/\\/.*/,"").trim()]=i;});
+  const rarityRank={}; ruleRows.slice().reverse().forEach((r,i)=>{rarityRank[r[1].split('/')[0].trim()]=i;});
 
   /* storage */
   const load=()=>JSON.parse(localStorage.getItem("inv")||"[]");

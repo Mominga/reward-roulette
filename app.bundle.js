@@ -91,8 +91,8 @@ let html = "<h2>抽選結果</h2>"
         if(gained.some(n=>rareList.includes(n))) rareFan();
       }catch(e){console.error(e);}
       finally{
-        flash.classList.remove(\"show\");
-        animText.textContent=\"\";
+        flash.classList.remove("show");
+        animText.textContent="";
         rollBtn.disabled=false;
       }
     },1100);

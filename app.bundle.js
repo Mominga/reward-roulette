@@ -77,9 +77,14 @@ document.addEventListener("DOMContentLoaded",()=>{
         const gained=[],blocked=[];
         got.forEach(n=>{((map[n]||0)>=MAX_HOLD?blocked:gained).push(n); if(!blocked.includes(n)){map[n]=(map[n]||0)+1;inv.push(n);}});
 
-        let html=\"<h2>抽選結果</h2>\"+
-          gained.map(n=>`<div class='card'>${n}</div>`).join(\"\")+
-          (blocked.length?`<div class='card strike'>${blocked.join(\"・\")}<div class='small'>所持上限で獲得無し</div></div>`:\"\");
++ const card = n => "<div class='card'>"+n+"</div>";
++ let html = "<h2>抽選結果</h2>"
++          + gained.map(card).join("")
++          + (blocked.length
++                ? "<div class='card strike'>"
++                  + blocked.join(\"・\")
++                  + \"<div class='small'>所持上限で獲得無し</div></div>\"
++                : "");
         resultBox.innerHTML=html;
         save(inv); renderInv();
 

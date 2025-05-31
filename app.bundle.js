@@ -45,6 +45,50 @@ document.addEventListener("DOMContentLoaded", () => {
   renderInv();
   resetBtn.onclick = () => {localStorage.removeItem("inv");renderInv();};
 
+  /* ========= 抽選判定関数（必須） ========= */
+function evaluate(d) {
+  const sum = d.reduce((a,b)=>a+b,0), freq = {};
+  d.forEach(v => freq[v] = (freq[v]||0)+1);
+
+  const pairOnly = Object.values(freq).some(v=>v==2) &&
+                   Object.values(freq).every(v=>v<=2);
+
+  let res = [];
+  if (sum >= 10) res.push("夕食を50%追加","翌朝に鼻うがい");
+  if (d.some(v=>v>=5))
+        res.push("お風呂に入る (有効48h)","顔を洗う","食器を洗う","洗濯機を回す");
+  if (pairOnly)
+        res.push("アイマスクを使う","耳栓を使う","電動自転車を利用","乾燥機能を使う");
+  if (sum>=11 && sum<=14)
+        res.push("お菓子を食べる","ギュ (ハグ) をする");
+  if (sum>=4 && sum<=6) res.push("散歩に行く");
+  if (sum==7)           res.push("メルカリで不用品を1つ出品");
+
+  /* ―― 以下ゾロ目／ストレートなど ―― */
+  if (freq[6]==3) res.push("温泉に行く");
+  if (freq[1]==3) res.push("国内旅行 1泊2日");
+  if (freq[2]==4||freq[3]==4) res.push("外食に行く");
+  if (freq[4]==4) res.push("映画を鑑賞する");
+  if (freq[5]==4) res.push("漫画喫茶に行く");
+  if (freq[6]==4) res.push("サイクリングに行く");
+  if (freq[1]==4) res.push("ゲーム1DAY");
+
+  const key   = d.join(""),
+        sortK = [...d].sort((a,b)=>a-b).join("");
+
+  if (sortK==="1234") res.push("ルーレット旅に行く");
+  if (sortK==="2345") res.push("○○教室ワークショップに参加");
+  if (sortK==="3456") res.push("海外旅行に行く");
+  if (["1212","2121","1221","2112","2211"].includes(key)) res.push("掃除1DAY");
+  if (["2341","2413","3142","3412","4123","4312"].includes(key)) res.push("読書1DAY");
+  if (key==="2224") res.push("●●系カフェに行く");
+  if (key==="2255") res.push("追加で5回抽選する");
+  if (key==="3334") res.push("登山/トレッキングに行く");
+  if (key==="3335") res.push("泳ぎに行く");
+
+  return res;
+}
+
   /* ========= 効果音 ========= */
   let ctx;
   const beepSafe = (f,d)=>{

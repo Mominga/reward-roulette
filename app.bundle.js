@@ -1,4 +1,6 @@
-/* ========= 定数 & 表 ========= */
+/* ========= Reward Roulette – 完全版 v13 ========= */
+
+/* --- 定数 & テーブル -------------------------------- */
 const MAX_HOLD = 2;
 const rareList = [
   "温泉に行く","国内旅行 1泊2日","グルメロシアンルーレット","映画を鑑賞する","漫画喫茶に行く",
@@ -7,83 +9,163 @@ const rareList = [
   "○○教室ワークショップに参加","海外旅行に行く","逆利き Day","冷水シャワー Day",
   "日本語10回だけ Day","ボランティアDay","24時間列車旅"
 ];
-const ruleRows=[ /* … 前回送った表をそのまま貼り付け … */ ];
+const ruleRows = [
+  ["90% 合10+","夕食を50%追加/鼻うがい"],["80% 5/6含","お風呂/家事4種"],
+  ["60% ペアのみ","アイマスク等"],["40% 合11-14","お菓子/ギュ"],
+  ["2% 合4-6","散歩"],["2% 合7","フリマアプリに不用品を出品"],
+  ["1% 666x","温泉"],["1% 111x","国内旅行 1泊2日"],
+  ["0.67% 2222","グルメロシアンルーレット"],["0.67% 3333","グルメロシアンルーレット"],
+  ["0.4% 4444","映画を鑑賞する"],["0.4% 5555","漫画喫茶に行く"],["0.4% 6666","サイクリングに行く"],
+  ["0.4% 1234","ルーレット旅に行く"],["0.4% 1111","ゲーム1DAY"],
+  ["0.4% 1212系","全力掃除 30 分タイマー"],["0.4% 2341系","全力読書30分タイマー"],
+  ["0.4% 2224","●●系カフェに行く"],["0.4% 2255","追加で5回抽選"],
+  ["0.4% 3334","登山/トレッキングに行く"],["0.4% 3335","泳ぎに行く"],
+  ["0.4% 1432","逆利き Day"],["0.4% 1551","冷水シャワー Day"],["0.4% 2332","日本語10回だけ Day"],
+  ["0.25% 2345","○○教室ワークショップに参加"],["0.20% 3456","海外旅行に行く"],
+  ["0.4% 4543","グルメロシアンルーレット"],["0.4% 3546","ボランティアDay"],["0.20% 6543","24時間列車旅"]
+];
 
-/* ========= DOM など ========= */
 document.addEventListener("DOMContentLoaded",()=>{
   const $=id=>document.getElementById(id);
-  const rulesTable=$("rulesTable"),diceBox=$("diceBox"),rollBtn=$("rollBtn"),resetBtn=$("resetBtn"),
-        invList=$("invList"),resultBox=$("result"),animText=$("animText"),
-        flash=$("flash"),flashTxt=$("flashTxt");
+  const tbl=$("rulesTable"),diceBox=$("diceBox"),rollBtn=$("rollBtn"),resetBtn=$("resetBtn"),
+        resultBox=$("result"),invList=$("invList"),flash=$("flash"),flashTxt=$("flashTxt"),animText=$("animText");
 
-  rulesTable.innerHTML="<tr><th>条件</th><th>報酬</th></tr>"+
-    ruleRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
+  tbl.innerHTML='<tr><th>条件</th><th>報酬</th></tr>'+ruleRows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
 
-  /* rarity rank 生成 */
-  const rarityRank={};
-  ruleRows.slice().reverse().forEach((r,i)=>{rarityRank[r[1].replace(/\\/.*/,"").trim()]=i;});
+  /* rarity rank */
+  const rarityRank={};ruleRows.slice().reverse().forEach((r,i)=>{rarityRank[r[1].split('/')[0].trim()]=i;});
 
-  /* storage helpers */
-  const load=()=>JSON.parse(localStorage.getItem("inv")||"[]");
-  const save=a=>localStorage.setItem("inv",JSON.stringify(a));
+  /* storage */
+  const load=()=>JSON.parse(localStorage.getItem('inv')||'[]');
+  const save=a=>localStorage.setItem('inv',JSON.stringify(a));
   const renderInv=()=>{const l=load(),m={};l.forEach(x=>m[x]=(m[x]||0)+1);
-    invList.innerHTML=l.length?Object.entries(m).map(([n,c])=>`<div class='card'>${n}${c>1?`<span class='badge'>×${c}</span>`:""}</div>`).join("")
-      :'<div class=\"small\">まだ報酬はありません。</div>';};
-  renderInv(); resetBtn.onclick=()=>{localStorage.removeItem("inv");renderInv();};
+    invList.innerHTML=l.length?Object.entries(m).map(([n,c])=>`<div class='card'>${n}${c>1?`<span class='badge'>×${c}</span>`:''}</div>`).join(""):'<div class="small">まだ報酬はありません。</div>';};
+  renderInv();resetBtn.onclick=()=>{localStorage.removeItem('inv');renderInv();};
 
-  /* dice helpers */
-  const createDie=()=>{const d=document.createElement("div");d.className="die rolling";
-    ["front","back","right","left","top","bottom"].forEach(f=>{const e=document.createElement("div");e.className="face "+f;d.appendChild(e);});
-    return d;};
-  const setFace=(c,v)=>{c.className="die show-"+v;c.querySelectorAll(".face").forEach(el=>el.textContent=v);};
+  /* dice */
+  const createDie=()=>{const d=document.createElement('div');d.className='die rolling';["front","back","right","left","top","bottom"].forEach(f=>{const e=document.createElement('div');e.className='face '+f;d.appendChild(e);});return d;};
+  const setFace=(c,v)=>{c.className='die show-'+v;c.querySelectorAll('.face').forEach(el=>el.textContent=v);};
   const rollVals=()=>Array.from({length:4},()=>1+Math.random()*6|0);
 
   /* sound/confetti */
-  let ctx; const beep=(f,d)=>{try{ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();
-    const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=f;o.connect(g);g.connect(ctx.destination);
-    o.start();g.gain.setValueAtTime(.35,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d/1000);o.stop(ctx.currentTime+d/1000);}catch{}};
+  let ctx;const beep=(f,d)=>{try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.value=f;o.connect(g);g.connect(ctx.destination);o.start();g.gain.setValueAtTime(.35,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d/1000);o.stop(ctx.currentTime+d/1000);}catch{}};
+  const rareFan=()=>[880,660,1040].forEach((f,i)=>setTimeout(()=>beep(f,200),200*i));
   const confettiSafe=window.confetti||(()=>{});
-  const rareFan = () => [880,660,1040].forEach((f,i)=>setTimeout(()=>beep(f,200),200*i));
+    /* evaluate */
+  function evaluate(d){
+    const sum = d.reduce((a,b)=>a+b,0),
+          freq = {};
+    d.forEach(v => freq[v] = (freq[v]||0)+1);
 
-  /* ========= evaluate（今回更新） ========= */
-  function evaluate(d){ /* … 前回送った evaluate 関数 … */ }
+    const pairOnly = Object.values(freq).some(v=>v===2) &&
+                     Object.values(freq).every(v=>v<=2);
+    const key = d.join("");
+    let r = [];
 
-  /* ========= Roll ハンドラ（フル） ========= */
-  rollBtn.onclick=()=>{
-    rollBtn.disabled=true;
-    animText.textContent="Rolling...";
-    diceBox.innerHTML="";
-    const cubes=[...Array(4)].map(()=>{const c=createDie();diceBox.appendChild(c);return c});
-    const tick=setInterval(()=>beep(500+Math.random()*300,60),90);
+    if(sum >= 10) r.push("夕食を50%追加","翌朝に鼻うがい");
+    if(d.some(v=>v>=5))
+      r.push("お風呂に入る (有効48h)","顔を洗う","食器を洗う","洗濯機を回す");
+    if(pairOnly)
+      r.push("アイマスクを使う","耳栓を使う","電動自転車を利用","乾燥機能を使う");
+
+    if(sum >= 11 && sum <= 14) r.push("お菓子を食べる","ギュ (ハグ) をする");
+    if(sum >= 4  && sum <= 6)  r.push("散歩に行く");
+    if(sum === 7)              r.push("フリマアプリに不用品を出品");
+
+    /* ゾロ目・ストレート系 */
+    if(freq[6]===3) r.push("温泉に行く");
+    if(freq[1]===3) r.push("国内旅行 1泊2日");
+    if(freq[2]===4 || freq[3]===4) r.push("グルメロシアンルーレット");
+    if(freq[4]===4) r.push("映画を鑑賞する");
+    if(freq[5]===4) r.push("漫画喫茶に行く");
+    if(freq[6]===4) r.push("サイクリングに行く");
+    if(freq[1]===4) r.push("ゲーム1DAY");
+
+    if(key === "1234") r.push("ルーレット旅に行く");
+    if(key === "2345") r.push("○○教室ワークショップに参加");
+    if(key === "3456") r.push("海外旅行に行く");
+
+    if(["1212","2121","1221","2112","2211"].includes(key))
+        r.push("全力掃除 30 分タイマー");
+    if(["2341","2413","3142","3412","4123","4312"].includes(key))
+        r.push("全力読書30分タイマー");
+
+    if(key === "2224") r.push("●●系カフェに行く");
+    if(key === "2255") r.push("追加で5回抽選する");
+    if(key === "3334") r.push("登山/トレッキングに行く");
+    if(key === "3335") r.push("泳ぎに行く");
+
+    /* 新パターン */
+    if(key === "1432") r.push("逆利き Day");
+    if(key === "1551") r.push("冷水シャワー Day");
+    if(key === "2332") r.push("日本語10回だけ Day");
+    if(key === "3546") r.push("ボランティアDay");
+    if(key === "6543") r.push("24時間列車旅");
+    if(key === "4543") r.push("グルメロシアンルーレット");
+
+    return r;
+  }
+  /* ===== Roll ===== */
+  rollBtn.onclick = () => {
+    rollBtn.disabled = true;
+    animText.textContent = "Rolling...";
+    diceBox.innerHTML = "";
+
+    const cubes = [...Array(4)].map(()=>{
+      const c = createDie();
+      diceBox.appendChild(c);
+      return c;
+    });
+
+    const tick = setInterval(()=>beep(520+Math.random()*300,60),90);
 
     setTimeout(()=>{
       clearInterval(tick);
       try{
-        const vals=rollVals(); cubes.forEach((c,i)=>setFace(c,vals[i]));
+        const vals = rollVals();
+        cubes.forEach((c,i)=>setFace(c,vals[i]));
         [523,659,784].forEach((f,i)=>setTimeout(()=>beep(f,160),180*i));
         confettiSafe({particleCount:120,spread:90,origin:{y:.75}});
 
-        /* 判定 → レア順ソート */
-        const got=evaluate(vals).sort((a,b)=>rarityRank[a]-rarityRank[b]);
-        const inv=load(),map={}; inv.forEach(n=>map[n]=(map[n]||0)+1);
+        /* evaluate & sort */
+        const got = evaluate(vals)
+                      .sort((a,b)=>rarityRank[a]-rarityRank[b]);
 
-        const gained=[],blocked=[];
+        const inv = load(), map = {};
+        inv.forEach(n=>map[n]=(map[n]||0)+1);
+
+        const gained=[], blocked=[];
         got.forEach(n=>{
-          if((map[n]||0)>=MAX_HOLD){blocked.push(n);}
-          else{gained.push(n);inv.push(n);map[n]=(map[n]||0)+1;}
+          if((map[n]||0) >= MAX_HOLD) blocked.push(n);
+          else {
+            gained.push(n);
+            inv.push(n);
+            map[n] = (map[n]||0) + 1;
+          }
         });
 
-        let html="<h2>抽選結果</h2>"+
-          gained.map(n=>"<div class='card'>"+n+"</div>").join("")+
-          (blocked.length?"<div class='card strike'>\"+blocked.join("・")+
-           "<div class='small'>所持上限で獲得無し</div></div>":"");
-        resultBox.innerHTML=html;
-        save(inv); renderInv();
-        if(gained.some(n=>rarityRank[n]<=rarityRank["○○教室ワークショップに参加"])) rareFan(); // ≒10%以下
+        /* 結果描画 */
+        const card = n => "<div class='card'>"+n+"</div>";
+        let html = "<h2>抽選結果</h2>"
+                 + gained.map(card).join("")
+                 + (blocked.length
+                     ? "<div class='card strike'>"
+                       + blocked.join("・")
+                       + "<div class='small'>所持上限で獲得無し</div></div>"
+                     : "");
+        resultBox.innerHTML = html;
+
+        save(inv);
+        renderInv();
+
+        /* 効果音：10%以下だけ */
+        if(gained.some(n=>rarityRank[n] <= rarityRank["○○教室ワークショップに参加"]))
+          rareFan();
+
       }finally{
         flash.classList.remove("show");
-        animText.textContent="";
-        rollBtn.disabled=false;
+        animText.textContent = "";
+        rollBtn.disabled = false;
       }
     },1100);
   };

@@ -42,16 +42,19 @@ const save = a => localStorage.setItem('inv', JSON.stringify(a));
 const renderInv = () => {
   const l = load(), m = {};
   l.forEach(x => m[x] = (m[x] || 0) + 1);
+
   invList.innerHTML = l.length
-    ? Object.entries(m).map(([n, c]) =>
-        `<button class="card" onclick="consume('${n}')">
-           ${n}
-           ${c > 1 ? `<span class='badge'>×${c}</span>` : ""}
-           <div class='small'>クリックで1つ使用</div>
-         </button>`
-      ).join("")
+    ? Object.entries(m).map(([n, c]) => {
+        const safeName = encodeURIComponent(n);
+        return `<button class="card" onclick="consume(decodeURIComponent('${safeName}'))">
+          ${n}
+          ${c > 1 ? `<span class='badge'>×${c}</span>` : ""}
+          <div class='small'>クリックで1つ使用</div>
+        </button>`;
+      }).join("")
     : '<div class="small">まだ報酬はありません。</div>';
 };
+
 
 
 resetBtn.onclick = () => {

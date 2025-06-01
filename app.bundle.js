@@ -40,20 +40,31 @@ const load = () => JSON.parse(localStorage.getItem('inv') || '[]');
 const save = a => localStorage.setItem('inv', JSON.stringify(a));
 
 const renderInv = () => {
-  const l = load(), m = {};
-  l.forEach(x => m[x] = (m[x] || 0) + 1);
+const renderInv = () => {
+  const inv = load();
+  const countMap = {};
+  inv.forEach(name => {
+    countMap[name] = (countMap[name] || 0) + 1;
+  });
 
-  invList.innerHTML = l.length
-    ? Object.entries(m).map(([n, c]) => {
-        const safeName = encodeURIComponent(n);
-        return `<button class="card" onclick="consume(decodeURIComponent('${safeName}'))">
-          ${n}
-          ${c > 1 ? `<span class='badge'>×${c}</span>` : ""}
-          <div class='small'>クリックで1つ使用</div>
-        </button>`;
-      }).join("")
-    : '<div class="small">まだ報酬はありません。</div>';
+  const entries = Object.entries(countMap);
+
+  if (entries.length === 0) {
+    invList.innerHTML = '<div class="small">まだ報酬はありません。</div>';
+    return;
+  }
+
+  invList.innerHTML = entries.map(([name, count]) => {
+    return `
+      <button class="card" onclick="consume('${name.replace(/'/g, "\\'")}')">
+        ${name}
+        ${count > 1 ? `<span class="badge">×${count}</span>` : ""}
+        <div class="small">クリックで1つ使用</div>
+      </button>
+    `;
+  }).join("");
 };
+
 
 
 

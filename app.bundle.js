@@ -41,8 +41,11 @@ document.addEventListener("DOMContentLoaded",()=>{
   const renderInv=()=>{const l=load(),m={};l.forEach(x=>m[x]=(m[x]||0)+1);
     invList.innerHTML = arr.length
   ? Object.entries(m).map(([n, c]) =>
-      `<div class="card" onclick="consume('${n}')">${n}${c > 1 ? `<span class="badge">×${c}</span>` : ""}
-       <div class='small'>クリックで1つ使用</div></div>`
+`<div class="card" onclick="consume('${n}')">
+   ${n}
+   ${c > 1 ? `<span class='badge'>×${c}</span>` : ""}
+   <div class='small'>クリックで1つ使用</div>
+ </div>`
     ).join("")
   : '<div class="small">まだ報酬はありません。</div>';
   renderInv();resetBtn.onclick=()=>{localStorage.removeItem('inv');renderInv();};

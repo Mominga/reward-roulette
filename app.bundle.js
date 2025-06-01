@@ -80,7 +80,10 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(freq[5]===4) r.push("漫画喫茶に行く");
     if(freq[6]===4) r.push("サイクリングに行く");
     if(freq[1]===4) r.push("ゲーム1DAY");
-
+    
+    if (key.startsWith("666")) r.push("温泉に行く");                 // 666x のみ
+    if (key.startsWith("111")) r.push("国内旅行 1泊2日");           // 111x のみ
+    
     if(key === "1234") r.push("ルーレット旅に行く");
     if(key === "2345") r.push("○○教室ワークショップに参加");
     if(key === "3456") r.push("海外旅行に行く");

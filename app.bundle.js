@@ -40,7 +40,6 @@ const load = () => JSON.parse(localStorage.getItem('inv') || '[]');
 const save = a => localStorage.setItem('inv', JSON.stringify(a));
 
 const renderInv = () => {
-const renderInv = () => {
   const inv = load();
   const countMap = {};
   inv.forEach(name => {

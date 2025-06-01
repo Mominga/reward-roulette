@@ -74,15 +74,15 @@ document.addEventListener("DOMContentLoaded",()=>{
         });
 
         let html="<h2>抽選結果</h2>"+
-          gained.map(n=>\"<div class='card'>\"+n+\"</div>\").join(\"\")+
-          (blocked.length?\"<div class='card strike'>\"+blocked.join(\"・\")+
-           \"<div class='small'>所持上限で獲得無し</div></div>\":\"\");
+          gained.map(n=>"<div class='card'>"+n+"</div>").join("")+
+          (blocked.length?"<div class='card strike'>\"+blocked.join("・")+
+           "<div class='small'>所持上限で獲得無し</div></div>":"");
         resultBox.innerHTML=html;
         save(inv); renderInv();
-        if(gained.some(n=>rarityRank[n]<=rarityRank[\"○○教室ワークショップに参加\"])) rareFan(); // ≒10%以下
+        if(gained.some(n=>rarityRank[n]<=rarityRank["○○教室ワークショップに参加"])) rareFan(); // ≒10%以下
       }finally{
-        flash.classList.remove(\"show\");
-        animText.textContent=\"\";
+        flash.classList.remove("show");
+        animText.textContent="";
         rollBtn.disabled=false;
       }
     },1100);

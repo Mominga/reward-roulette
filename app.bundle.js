@@ -35,22 +35,30 @@ document.addEventListener("DOMContentLoaded",()=>{
   /* rarity rank */
   const rarityRank={};ruleRows.slice().reverse().forEach((r,i)=>{rarityRank[r[1].split('/')[0].trim()]=i;});
 
-  /* storage */
-  const load=()=>JSON.parse(localStorage.getItem('inv')||'[]');
-  const save=a=>localStorage.setItem('inv',JSON.stringify(a));
-  const renderInv=()=>{const l=load(),m={};l.forEach(x=>m[x]=(m[x]||0)+1);
-    invList.innerHTML = arr.length
-  ? Object.entries(m).map(([n, c]) =>
-`<div class="card" onclick="consume('${n}')">
-   ${n}
-   ${c > 1 ? `<span class='badge'>×${c}</span>` : ""}
-   <div class='small'>クリックで1つ使用</div>
- </div>`
-    ).join("")
-  : '<div class="small">まだ報酬はありません。</div>';
-  renderInv();resetBtn.onclick=()=>{localStorage.removeItem('inv');renderInv();};
+/* storage */
+const load = () => JSON.parse(localStorage.getItem('inv') || '[]');
+const save = a => localStorage.setItem('inv', JSON.stringify(a));
 
-  function consume(name) {
+const renderInv = () => {
+  const l = load(), m = {};
+  l.forEach(x => m[x] = (m[x] || 0) + 1);
+  invList.innerHTML = l.length
+    ? Object.entries(m).map(([n, c]) =>
+        `<div class="card" onclick="consume('${n}')">
+           ${n}
+           ${c > 1 ? `<span class='badge'>×${c}</span>` : ""}
+           <div class='small'>クリックで1つ使用</div>
+         </div>`
+      ).join("")
+    : '<div class="small">まだ報酬はありません。</div>';
+};
+
+resetBtn.onclick = () => {
+  localStorage.removeItem('inv');
+  renderInv();
+};
+
+function consume(name) {
   const inv = load();
   const index = inv.indexOf(name);
   if (index !== -1) {
@@ -59,6 +67,9 @@ document.addEventListener("DOMContentLoaded",()=>{
     renderInv();
   }
 }
+
+// 初期描画呼び出し
+renderInv();
 
   /* dice */
   const createDie=()=>{const d=document.createElement('div');d.className='die rolling';["front","back","right","left","top","bottom"].forEach(f=>{const e=document.createElement('div');e.className='face '+f;d.appendChild(e);});return d;};

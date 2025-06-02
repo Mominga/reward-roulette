@@ -62,15 +62,21 @@ const renderInv = () => {
 
   invList.innerHTML = entries.map(([name, count]) => {
     const display = escapeHtml(name);
-    const onclickSafe = name.replace(/'/g, "\\'");
-    return `
-      <button class="card" onclick="consume('${onclickSafe}')">
-        ${display}
-        ${count > 1 ? `<span class="badge">×${count}</span>` : ""}
-        <div class="small">クリックで1つ使用</div>
-      </button>
-    `;
+    const safeName = encodeURIComponent(name);  // 安全にonclickへ渡す
+    return `<button class="card use-reward" data-name="${safeName}">
+              <div>${display}</div>
+              ${count > 1 ? `<span class="badge">×${count}</span>` : ""}
+              <div class="small">クリックで1つ使用</div>
+            </button>`;
   }).join("");
+
+  // ボタンにイベントを割り当て
+  document.querySelectorAll(".use-reward").forEach(btn => {
+    btn.onclick = () => {
+      const name = decodeURIComponent(btn.dataset.name);
+      consume(name);
+    };
+  });
 };
 
 resetBtn.onclick = () => {
@@ -88,24 +94,6 @@ function consume(name) {
   }
 }
 
-
-
-
-
-resetBtn.onclick = () => {
-  localStorage.removeItem('inv');
-  renderInv();
-};
-
-function consume(name) {
-  const inv = load();
-  const index = inv.indexOf(name);
-  if (index !== -1) {
-    inv.splice(index, 1);
-    save(inv);
-    renderInv();
-  }
-}
 
 // 初期描画呼び出し
 renderInv();

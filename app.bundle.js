@@ -61,16 +61,14 @@ const renderInv = () => {
   }
 
   invList.innerHTML = entries.map(([name, count]) => {
-    const display = escapeHtml(name);
-    const safeName = encodeURIComponent(name);  // 安全にonclickへ渡す
-    return `<button class="card use-reward" data-name="${safeName}">
-              <div>${display}</div>
-              ${count > 1 ? `<span class="badge">×${count}</span>` : ""}
-              <div class="small">クリックで1つ使用</div>
+    const safeText = escapeHtml(name);
+    const safeData = encodeURIComponent(name);
+    const badge = count > 1 ? `<span class="badge">×${count}</span>` : "";
+    return `<button class="card use-reward" data-name="${safeData}">
+              ${safeText} ${badge}<br><span class="small">クリックで1つ使用</span>
             </button>`;
   }).join("");
 
-  // ボタンにイベントを割り当て
   document.querySelectorAll(".use-reward").forEach(btn => {
     btn.onclick = () => {
       const name = decodeURIComponent(btn.dataset.name);
@@ -93,6 +91,7 @@ function consume(name) {
     renderInv();
   }
 }
+
 
 
 // 初期描画呼び出し

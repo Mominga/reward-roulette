@@ -30,3 +30,8 @@ button.card {
   font-size: 0.875rem;
   line-height: 1.4;
 }
+button.card, 
+button.card * {
+  color: #111 !important;
+}
+

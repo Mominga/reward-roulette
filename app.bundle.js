@@ -93,8 +93,12 @@ function consume(name) {
     inv.splice(index, 1);
     save(inv);
     renderInv();
+
+    // ✅ 使用音を鳴らす（使用時効果音）
+    beep(660, 120); // ← 明るめの音（周波数660Hz、120ms）
   }
 }
+
 
 
 // 初期描画呼び出し

@@ -39,6 +39,13 @@ document.addEventListener("DOMContentLoaded",()=>{
 const load = () => JSON.parse(localStorage.getItem('inv') || '[]');
 const save = a => localStorage.setItem('inv', JSON.stringify(a));
 
+const escapeHtml = (str) =>
+  str.replace(/&/g, "&amp;")
+     .replace(/</g, "&lt;")
+     .replace(/>/g, "&gt;")
+     .replace(/\"/g, "&quot;")
+     .replace(/\'/g, "&#039;");
+
 const renderInv = () => {
   const inv = load();
   const countMap = {};
@@ -54,15 +61,33 @@ const renderInv = () => {
   }
 
   invList.innerHTML = entries.map(([name, count]) => {
+    const display = escapeHtml(name);
+    const onclickSafe = name.replace(/'/g, "\\'");
     return `
-      <button class="card" onclick="consume('${name.replace(/'/g, "\\'")}')">
-        ${name}
+      <button class="card" onclick="consume('${onclickSafe}')">
+        ${display}
         ${count > 1 ? `<span class="badge">×${count}</span>` : ""}
         <div class="small">クリックで1つ使用</div>
       </button>
     `;
   }).join("");
 };
+
+resetBtn.onclick = () => {
+  localStorage.removeItem('inv');
+  renderInv();
+};
+
+function consume(name) {
+  const inv = load();
+  const index = inv.indexOf(name);
+  if (index !== -1) {
+    inv.splice(index, 1);
+    save(inv);
+    renderInv();
+  }
+}
+
 
 
 

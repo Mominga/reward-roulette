@@ -39,18 +39,19 @@ document.addEventListener("DOMContentLoaded",()=>{
 const load = () => JSON.parse(localStorage.getItem('inv') || '[]');
 const save = a => localStorage.setItem('inv', JSON.stringify(a));
 
+// 簡略化：必要なものだけエスケープ
 const escapeHtml = (str) =>
   str.replace(/&/g, "&amp;")
      .replace(/</g, "&lt;")
-     .replace(/>/g, "&gt;")
-     .replace(/\"/g, "&quot;")
-     .replace(/\'/g, "&#039;");
+     .replace(/>/g, "&gt;");
 
 const renderInv = () => {
   const inv = load();
   const countMap = {};
   inv.forEach(name => {
-    countMap[name] = (countMap[name] || 0) + 1;
+    if (typeof name === "string" && name.trim() !== "") {
+      countMap[name] = (countMap[name] || 0) + 1;
+    }
   });
 
   const entries = Object.entries(countMap);
@@ -64,8 +65,10 @@ const renderInv = () => {
     const safeText = escapeHtml(name);
     const safeData = encodeURIComponent(name);
     const badge = count > 1 ? `<span class="badge">×${count}</span>` : "";
+    console.log("Rendering reward:", name);  // ← デバッグ
     return `<button class="card use-reward" data-name="${safeData}">
-              ${safeText} ${badge}<br><span class="small">クリックで1つ使用</span>
+              <span class="reward-name">${safeText}</span> ${badge}
+              <div class="small">クリックで1つ使用</div>
             </button>`;
   }).join("");
 
@@ -91,6 +94,7 @@ function consume(name) {
     renderInv();
   }
 }
+
 
 
 

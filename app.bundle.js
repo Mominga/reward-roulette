@@ -66,16 +66,16 @@ const renderInv = () => {
     const safeData = encodeURIComponent(name);
     const badge = count > 1 ? `<span class="badge">×${count}</span>` : "";
     return `
-      <button class="card use-reward" data-name="${safeData}">
-        <div class="label"><strong>${safeText}</strong> ${badge}</div>
+      <div class="card reward-item" data-name="${safeData}">
+        ${safeText} ${badge}
         <div class="small">クリックで1つ使用</div>
-      </button>
+      </div>
     `;
   }).join("");
 
-  document.querySelectorAll(".use-reward").forEach(btn => {
-    btn.onclick = () => {
-      const name = decodeURIComponent(btn.dataset.name);
+  document.querySelectorAll(".reward-item").forEach(el => {
+    el.onclick = () => {
+      const name = decodeURIComponent(el.dataset.name);
       consume(name);
     };
   });
@@ -95,9 +95,6 @@ function consume(name) {
     renderInv();
   }
 }
-
-
-
 
 
 // 初期描画呼び出し

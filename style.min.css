@@ -25,6 +25,7 @@ button:disabled{opacity:.5}.mini{padding:.25rem .65rem;font-size:.65rem;backgrou
 #flash{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;pointer-events:none;opacity:0;transition:opacity .3s}
 #flash.show{opacity:1;animation:fade 2s forwards}@keyframes fade{0%,85%{opacity:1}100%{opacity:0}}
 button.card {
+  color: #111; /* ← これを追加 */
   text-align: left;
   font-size: 0.875rem;
   line-height: 1.4;

@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded",()=>{
 const load = () => JSON.parse(localStorage.getItem('inv') || '[]');
 const save = a => localStorage.setItem('inv', JSON.stringify(a));
 
-// 簡略化：必要なものだけエスケープ
 const escapeHtml = (str) =>
   str.replace(/&/g, "&amp;")
      .replace(/</g, "&lt;")
@@ -65,11 +64,12 @@ const renderInv = () => {
     const safeText = escapeHtml(name);
     const safeData = encodeURIComponent(name);
     const badge = count > 1 ? `<span class="badge">×${count}</span>` : "";
-    console.log("Rendering reward:", name);  // ← デバッグ
-    return `<button class="card use-reward" data-name="${safeData}">
-              <span class="reward-name">${safeText}</span> ${badge}
-              <div class="small">クリックで1つ使用</div>
-            </button>`;
+    return `
+      <button class="card use-reward" data-name="${safeData}">
+        <div class="label"><strong>${safeText}</strong> ${badge}</div>
+        <div class="small">クリックで1つ使用</div>
+      </button>
+    `;
   }).join("");
 
   document.querySelectorAll(".use-reward").forEach(btn => {
@@ -94,6 +94,7 @@ function consume(name) {
     renderInv();
   }
 }
+
 
 
 
